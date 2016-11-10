@@ -1,0 +1,13 @@
+{
+  "bind_addr": "127.0.0.1",
+  "node_name": "local-consul",
+  "client_addr": "0.0.0.0",
+  "bootstrap": true,
+  "ui": true, 
+  "server": true,
+  "datacenter": "eu",
+  "data_dir": "consul/data",
+  "encrypt": "I7bO8dvTfv7bTQuTiwqhPg==",
+  "log_level": "INFO",
+  "enable_syslog": true
+}

@@ -22,3 +22,16 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+# Idea files
+.idea
+
+# Background tasks files
+nohup.out
+
+# Results directory
+results
+
+# Consul data
+consul/consul
+consul/data

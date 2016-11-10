@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package service;
+
+// MapReduce gRPC service used by worker-master communication
+service MapReduce {
+	// Map starts map phase and returns the status of the tasks as long as its ongoing.
+	rpc Map(MrJob) returns (stream MrStatus) {}
+
+	// Reduce starts reduce phase and returns the status of the tasks as long as its ongoing.
+	rpc Reduce(MrJob) returns (stream MrStatus) {}
+}
+
+// Master gRPC service used by client-master communication
+service Master {
+	// Submit submits map reduce job and returns stream of statuses until the job is ongoing.
+	rpc Submit(MrJob) returns (stream MrStatus) {}
+}
+
+message MrStatus {
+	string serviceId = 1;
+	Status status = 2;
+	Phase  phase = 3;
+	string msg = 4;
+}
+
+message MrJob {
+	string name = 1;
+	int32 mapTasksNum = 2;
+	int32 reduceTasksNum = 3;
+	int32 currentReduceTask = 4;
+	string input = 5;
+	string workDir = 6;
+	bytes mapReducePlugin = 7;
+}
+
+enum Status {
+	DONE = 0;
+	ALL_DONE = 1;
+	PLUGIN_LOADED = 2;
+	INPUT_LOADED = 3;
+	INTERMEDIATE_FILES_CREATED = 4;
+	ERROR = 5;
+}
+
+enum Phase {
+	MAP = 0;
+	REDUCE = 1;
+}
