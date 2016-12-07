@@ -7,4 +7,5 @@ type Job struct {
 	ReduceTasksNum int32
 	Input          string
 	MrImplDir      string
+	GoBinPath      string
 }

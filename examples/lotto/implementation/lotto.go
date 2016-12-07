@@ -5,7 +5,6 @@ import (
 	"github.com/mateuszdyminski/gomr/mapreduce"
 	"strconv"
 	"strings"
-	"unicode"
 )
 
 func main() {}
@@ -13,14 +12,24 @@ func main() {}
 // MrImpl implements the gomr MapReduce interface.
 type MrImpl struct{}
 
-// Map analyzes the each line of the input file and returns the number of occurrences of word.
+// Map analyzes the each line of the input file and returns the number of occurrences of number in lotto draw.
+// Example of the line:
+// 1. 27.01.1957 8,12,31,39,43,45
 func (mr MrImpl) Map(key, value string) (result []mapreduce.KeyValue) {
-	isNotLetter := func(r rune) bool { return !unicode.IsLetter(r) }
-	words := strings.FieldsFunc(value, isNotLetter)
+	vals := strings.Split(value, " ")
+	if len(vals) != 3 {
+		return
+	}
 
-	result = make([]mapreduce.KeyValue, 0, len(words))
-	for _, w := range words {
-		result = append(result, mapreduce.KeyValue{Key: strings.ToLower(w), Value: strconv.Itoa(1)})
+	numbers := strings.Split(vals[2], ",")
+	if len(numbers) != 6 {
+		fmt.Printf("wrong lotto results format: %s\n", vals[2])
+		return
+	}
+
+	result = make([]mapreduce.KeyValue, 0, 6)
+	for _, w := range numbers {
+		result = append(result, mapreduce.KeyValue{Key: w, Value: strconv.Itoa(1)})
 	}
 	return
 }

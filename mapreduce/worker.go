@@ -138,7 +138,7 @@ func (w *Wrk) startGrpcServer() error {
 		return err
 	}
 
-	w.grpcServer = grpc.NewServer()
+	w.grpcServer = grpc.NewServer(grpc.MaxMsgSize(1024*1024*20)) // 20mb
 	service.RegisterMapReduceServer(w.grpcServer, w)
 	go func() {
 		w.l.Info("starting grpc server on address: %s", addr)

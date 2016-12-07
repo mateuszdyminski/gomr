@@ -310,7 +310,7 @@ func (m *Master) startGrpcServer() error {
 		return err
 	}
 
-	m.grpcServer = grpc.NewServer()
+	m.grpcServer = grpc.NewServer(grpc.MaxMsgSize(1024*1024*20)) // 20mb
 	service.RegisterMasterServer(m.grpcServer, m)
 	go func() {
 		m.l.Info("starting grpc server on address: %s", addr)

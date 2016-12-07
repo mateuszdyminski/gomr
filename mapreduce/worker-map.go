@@ -7,11 +7,16 @@ import (
 	"path"
 
 	"github.com/mateuszdyminski/gomr/service"
+	"strings"
 )
 
 // Map starts map phase and returns the status of the tasks as long as its ongoing.
 func (w *Wrk) Map(job *service.MrJob, server service.MapReduce_MapServer) error {
 	mapF, err := w.loadMapFunc(job)
+	if err != nil {
+		return err
+	}
+
 	if err := server.Send(&service.MrStatus{ServiceId: w.id, Phase: service.Phase_MAP, Status: service.Status_PLUGIN_LOADED}); err != nil {
 		return err
 	}
@@ -87,6 +92,9 @@ func (w *Wrk) safeMapCall(mapF func(string, string) []KeyValue, input string, co
 		}
 	}()
 
-	result = mapF(input, string(content))
+	for _, line := range strings.Split(string(content), "\n") {
+		vals := mapF(input, line)
+		result = append(result, vals...)
+	}
 	return
 }

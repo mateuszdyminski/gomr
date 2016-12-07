@@ -30,7 +30,9 @@ var _ = math.Inf
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
-const _ = proto.ProtoPackageIsVersion1
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type Status int32
 
@@ -98,6 +100,34 @@ func (m *MrStatus) String() string            { return proto.CompactTextString(m
 func (*MrStatus) ProtoMessage()               {}
 func (*MrStatus) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
+func (m *MrStatus) GetServiceId() string {
+	if m != nil {
+		return m.ServiceId
+	}
+	return ""
+}
+
+func (m *MrStatus) GetStatus() Status {
+	if m != nil {
+		return m.Status
+	}
+	return Status_DONE
+}
+
+func (m *MrStatus) GetPhase() Phase {
+	if m != nil {
+		return m.Phase
+	}
+	return Phase_MAP
+}
+
+func (m *MrStatus) GetMsg() string {
+	if m != nil {
+		return m.Msg
+	}
+	return ""
+}
+
 type MrJob struct {
 	Name              string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	MapTasksNum       int32  `protobuf:"varint,2,opt,name=mapTasksNum" json:"mapTasksNum,omitempty"`
@@ -113,6 +143,55 @@ func (m *MrJob) String() string            { return proto.CompactTextString(m) }
 func (*MrJob) ProtoMessage()               {}
 func (*MrJob) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
 
+func (m *MrJob) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *MrJob) GetMapTasksNum() int32 {
+	if m != nil {
+		return m.MapTasksNum
+	}
+	return 0
+}
+
+func (m *MrJob) GetReduceTasksNum() int32 {
+	if m != nil {
+		return m.ReduceTasksNum
+	}
+	return 0
+}
+
+func (m *MrJob) GetCurrentReduceTask() int32 {
+	if m != nil {
+		return m.CurrentReduceTask
+	}
+	return 0
+}
+
+func (m *MrJob) GetInput() string {
+	if m != nil {
+		return m.Input
+	}
+	return ""
+}
+
+func (m *MrJob) GetWorkDir() string {
+	if m != nil {
+		return m.WorkDir
+	}
+	return ""
+}
+
+func (m *MrJob) GetMapReducePlugin() []byte {
+	if m != nil {
+		return m.MapReducePlugin
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*MrStatus)(nil), "service.MrStatus")
 	proto.RegisterType((*MrJob)(nil), "service.MrJob")
@@ -126,7 +205,7 @@ var _ grpc.ClientConn
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion2
+const _ = grpc.SupportPackageIsVersion4
 
 // Client API for MapReduce service
 
@@ -280,6 +359,7 @@ var _MapReduce_serviceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
+	Metadata: "mr.proto",
 }
 
 // Client API for Master service
@@ -372,11 +452,14 @@ var _Master_serviceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
+	Metadata: "mr.proto",
 }
+
+func init() { proto.RegisterFile("mr.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
 	// 423 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x8c, 0x92, 0x41, 0x6f, 0x9b, 0x40,
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0x41, 0x6f, 0x9b, 0x40,
 	0x10, 0x85, 0xbd, 0xc1, 0x8b, 0xed, 0xa9, 0xeb, 0xe0, 0x51, 0x0f, 0x28, 0x8a, 0x2a, 0xcb, 0xaa,
 	0x5a, 0x2b, 0x8a, 0xdc, 0xca, 0x3d, 0xf5, 0x88, 0xc2, 0xb6, 0xa2, 0x02, 0x8c, 0xd6, 0xf8, 0x6c,
 	0xad, 0x9d, 0x55, 0x4a, 0x53, 0x0c, 0xda, 0x85, 0xf6, 0x37, 0xf4, 0xc7, 0xf6, 0x3f, 0x54, 0x5e,

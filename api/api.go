@@ -15,6 +15,7 @@ import (
 	consulApi "github.com/hashicorp/consul/api"
 	"github.com/mateuszdyminski/gomr/service"
 	"google.golang.org/grpc"
+	"strings"
 )
 
 // MrClient holds information about the gomr client.
@@ -138,10 +139,16 @@ func (c *MrClient) toMrJob(job Job) (*service.MrJob, error) {
 	}
 	defer os.RemoveAll(destDir)
 
+	out, err := exec.Command("bash", "-c", job.GoBinPath + " version").Output()
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("building plugin with go version: '%s' \n", strings.TrimRight(string(out), "\n"))
+
 	outputFile := fmt.Sprintf("%s-%d.so", job.Name, time.Now().Unix())
-	execString := fmt.Sprintf("cd %s && go build -buildmode=plugin -o %s .", destDir, outputFile)
+	execString := fmt.Sprintf("cd %s && %s build -buildmode=plugin -o %s .", destDir, job.GoBinPath, outputFile)
 	log.Printf("building plugin %s with command: '%s' \n", job.Name, execString)
-	_, err := exec.Command("bash", "-c", execString).Output()
+	_, err = exec.Command("bash", "-c", execString).Output()
 	if err != nil {
 		return nil, err
 	}

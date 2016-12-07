@@ -16,8 +16,8 @@ func main() {
 	flag.Parse()
 
 	job := api.Job{
-		Name:           "WordCount",
-		Input:          "/Users/md/workspace/go/src/github.com/mateuszdyminski/gomr/data/chapter1",
+		Name:           "Lotto",
+		Input:          "/Users/md/workspace/go/src/github.com/mateuszdyminski/gomr/data/lotto-results",
 		MapTasksNum:    5,
 		ReduceTasksNum: 1,
 		MrImplDir:      *mrImplDir,
