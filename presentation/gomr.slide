@@ -1,0 +1,249 @@
+Go Plugins - how to write your own Hadoop based on plugins.
+
+Mateusz Dymiński
+@m_dyminski
+github.com/mateuszdyminski/gomr
+
+* Go plugins
+
+- New feature of Go 1.8
+- Allows load additional code—like plugins—while the program is running
+- Works only on Linux and Darwin
+- Really buggy at the moment
+- Powerful - customization without rebuild the app/lib
+
+* How it works
+
+A plugin is a Go main package with exported functions and variables that has been built with:
+
+    go build -buildmode=plugin
+
+When a plugin is first opened, the init functions of all packages not already part of the program are called. The main function is not run. A plugin is only initialized once, and cannot be closed.
+
+* How it works - example 1
+
+Plugin implementation:
+.code data/example1/printer.go
+
+* How it works - example 1
+
+Plugin load:
+.play data/example1/main.go
+
+* How it works - example 2
+
+Plugin implementation:
+.code data/example2/printer.go
+
+* How it works - example 2
+
+Plugin load:
+.play data/example2/main.go
+
+* How it works - example 3
+
+Plugin implementation:
+.code data/example3/fancy/printer.go
+
+* How it works - example 3
+
+Plugin implementation:
+.code data/example3/ugly/printer.go
+
+* How it works - example 3
+
+Plugin load:
+.play data/example3/main.go /^func main/,/^}/
+
+* How it works - example 4
+
+Interface:
+.code data/example4/printer/printer.go
+
+* How it works - example 4
+
+Plugin which implements interface:
+.code data/example4/fancy/printer.go
+
+* How it works - example 4
+
+Plugin load:
+.play data/example4/main.go /^func main/,/^}/
+
+* How it works - example 5
+
+Plugin implementation:
+.code data/example5/printer.go
+
+* How it works - example 5
+
+Plugin load:
+.play data/example5/main.go
+
+* How it works - example 6
+
+Plugin implementation:
+.code data/example6/printer.go
+
+* How it works - example 6
+
+Plugin load:
+.code data/example6/main.go /^func main/,/^}/
+
+* How it works - example 6
+
+Safe call:
+.code data/example6/main.go /^func safeCall/,/^}/
+
+* How it works - example 7
+
+Plugin implementation:
+.code data/example7/printer.go
+
+* How it works - example 7
+
+.code data/example7/main.go /^func main/,/^}/
+
+* Glow project
+
+
+
+* Glow project
+
+.link https://github.com/chrislusf/glow https://github.com/chrislusf/glow
+
+.link https://blog.gopheracademy.com/advent-2015/glow-map-reduce-for-golang/ https://blog.gopheracademy.com/advent-2015/glow-map-reduce-for-golang/
+
+    Glow has limitations that Go code can not be sent and executed remotely.
+    My next project, Gleam, tries to address this. More details later.
+
+* Hadoop
+
+* Hadoop basics
+
+The base Apache Hadoop framework is composed of the following modules:
+
+- Hadoop Common – contains libraries and utilities needed by other Hadoop modules;
+- Hadoop Distributed File System (HDFS) – a distributed file-system that stores data on commodity machines, providing very high aggregate bandwidth across the cluster;
+- Hadoop YARN – a resource-management platform responsible for managing computing resources in clusters and using them for scheduling of users' applications
+- Hadoop MapReduce – an implementation of the MapReduce programming model for large scale data processing.
+
+* Map Reduce
+
+.image data/mapreduce.png _ 600
+
+* Map Reduce
+
+.image data/mapreduce_example.png _ 1000
+
+* Hadoop Map Reduce
+
+.image data/hadoop.png _ 800
+
+* HDFS architecture
+
+.image data/hdfsarchitecture.gif _ 800
+
+* Gomr
+
+* Gomr architecture
+
+.image data/gomr.png _ 800
+
+* Gomr components
+
+* Gomr - client
+
+- Is responsible for submitting job to the gomr cluster
+- Connects to the Consul to get the address of master service
+- Tracks the progress of computation
+- Job submit blocks the invocation
+
+* Gomr - master
+
+- Connects to the Consul to get the address of all worker services
+- Watch for new workers or removes dead ones
+- Prepares files for the map phase
+- Merge files after the reduce phase
+- Rerun the failed tasks
+- Gets the current status of work and pass it to the client
+
+* Gomr - worker
+
+- Load plugin implementation
+- Send status of work to master
+- Computes map and reduce phase
+- Prepares intermediate files for reduce phase - partitioning
+
+* Gomr limitations
+
+- No distributed filesystem
+- Due to no DFS everything is run on the same machine
+- Split phase loads everything into memory
+- Partitioning phase loads everything into memory
+- Merge phase loads everything into memory
+
+* Gomr - how to submit job
+
+.code ../examples/lotto/main.go /^func main/,/^}/
+
+* Gomr - MapReduce implementation
+
+    // MrImpl implements the gomr MapReduce interface.
+    type MrImpl struct{}
+
+    // Map analyzes the each line of the input file and returns the number of occurrences of number in lotto draw.
+    // Example of the line:
+    // 1. 27.01.1957 8,12,31,39,43,45
+    func (mr MrImpl) Map(key, value string) (result []mapreduce.KeyValue) {
+    	vals := strings.Split(value, " ")
+    	if len(vals) != 3 {
+    		return
+    	}
+
+    	numbers := strings.Split(vals[2], ",")
+    	if len(numbers) != 6 {
+    		fmt.Printf("wrong lotto results format: %s\n", vals[2])
+    		return
+    	}
+
+    	result = make([]mapreduce.KeyValue, 0, 6)
+    	for _, w := range numbers {
+    		result = append(result, mapreduce.KeyValue{Key: w, Value: strconv.Itoa(1)})
+    	}
+    	return
+    }
+
+
+* Gomr - MapReduce implementation
+
+    // Reduce calculates the number of particular word(key).
+    func (mr MrImpl) Reduce(key string, values []string) string {
+    	counter := 0
+    	for _, v := range values {
+    		val, err := strconv.Atoi(v)
+    		if err != nil {
+    			continue
+    		}
+    		counter += val
+    	}
+
+    	return fmt.Sprintf("%d", counter)
+    }
+
+    // Impl exports the implementation of MapReduce to be available for plugin.Lookup.
+    var Impl mapreduce.MapReduce = MrImpl{}
+
+* Gomr implementation - client
+
+* Gomr implementation - master
+
+* Gomr implementation - worker
+
+* Gomr implementation - worker - map
+
+* Gomr implementation - worker - reduce
+
+* Demo!
+
+* Questions?

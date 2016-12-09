@@ -28,14 +28,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	log.Printf("submitting job %s!\n", job.Name)
-
 	summary, err := client.Submit(job)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	log.Printf("status: %+v \n", summary.Status)
 	log.Printf("result: %+v \n", summary.Result)
 	log.Printf("duration: %+v \n", summary.Duration)

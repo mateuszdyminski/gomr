@@ -129,7 +129,6 @@ func (m *Master) Start() error {
 
 	// run workers watcher to add/remove workers
 	go m.watchWorkers()
-
 	// run until we get a signal
 	m.waitUntil(os.Interrupt, os.Kill)
 	return nil
@@ -310,7 +309,7 @@ func (m *Master) startGrpcServer() error {
 		return err
 	}
 
-	m.grpcServer = grpc.NewServer(grpc.MaxMsgSize(1024*1024*20)) // 20mb
+	m.grpcServer = grpc.NewServer(grpc.MaxMsgSize(1024 * 1024 * 20)) // 20mb
 	service.RegisterMasterServer(m.grpcServer, m)
 	go func() {
 		m.l.Info("starting grpc server on address: %s", addr)

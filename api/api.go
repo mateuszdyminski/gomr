@@ -139,7 +139,7 @@ func (c *MrClient) toMrJob(job Job) (*service.MrJob, error) {
 	}
 	defer os.RemoveAll(destDir)
 
-	out, err := exec.Command("bash", "-c", job.GoBinPath + " version").Output()
+	out, err := exec.Command("bash", "-c", job.GoBinPath+" version").Output()
 	if err != nil {
 		return nil, err
 	}

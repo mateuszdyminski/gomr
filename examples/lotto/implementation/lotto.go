@@ -7,8 +7,6 @@ import (
 	"strings"
 )
 
-func main() {}
-
 // MrImpl implements the gomr MapReduce interface.
 type MrImpl struct{}
 
