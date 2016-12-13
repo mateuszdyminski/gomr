@@ -12,7 +12,7 @@ It allows to submit job with your own implementation of Map-Reduce. The compilat
 
 ![Architecture](https://github.com/mateuszdyminski/gomr/raw/master/presentation/data/gomr.png)
 
-### Componenets
+### Components
 
 #### Gomr - client
 
